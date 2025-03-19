@@ -1,0 +1,39 @@
+{
+    "name": "cmsmaxinc/omnipay-paya",
+    "type": "library",
+    "description": "Paya (Nuvei) gateway for Omnipay payment processing library",
+    "keywords": [
+        "gateway",
+        "paya",
+        "nuvei",
+        "omnipay",
+        "pay",
+        "payment"
+    ],
+    "homepage": "https://github.com/cmsmaxinc/omnipay-paya",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Omnipay\\Paya\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^8.3",
+        "omnipay/common": "^3.0"
+    },
+    "require-dev": {
+        "omnipay/tests": "dev-master",
+        "phpunit/phpunit": "^11.0",
+        "squizlabs/php_codesniffer": "^3.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    }
+}
