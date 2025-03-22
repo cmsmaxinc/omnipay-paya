@@ -5,26 +5,41 @@ namespace Omnipay\Paya\Message;
 class RefundResponse extends AbstractResponse
 {
     /**
-     * Get response code
+     * Get the response code
      *
      * @return string|null
      */
     public function getCode()
     {
-        return isset($this->data->AUTHORIZATION_MESSAGE->CODE) 
-            ? (string)$this->data->AUTHORIZATION_MESSAGE->CODE 
-            : null;
+        return isset($this->data->AUTHORIZATION_MESSAGE) && 
+               isset($this->data->AUTHORIZATION_MESSAGE->CODE) 
+                    ? (string)$this->data->AUTHORIZATION_MESSAGE->CODE 
+                    : null;
     }
     
     /**
-     * Get response type
+     * Get the response type
      *
      * @return string|null
      */
     public function getResponseType()
     {
-        return isset($this->data->AUTHORIZATION_MESSAGE->RESPONSE_TYPE) 
-            ? (string)$this->data->AUTHORIZATION_MESSAGE->RESPONSE_TYPE 
-            : null;
+        return isset($this->data->AUTHORIZATION_MESSAGE) && 
+               isset($this->data->AUTHORIZATION_MESSAGE->RESPONSE_TYPE) 
+                    ? (string)$this->data->AUTHORIZATION_MESSAGE->RESPONSE_TYPE 
+                    : null;
+    }
+    
+    /**
+     * Get the response type text
+     *
+     * @return string|null
+     */
+    public function getResponseTypeText()
+    {
+        return isset($this->data->AUTHORIZATION_MESSAGE) && 
+               isset($this->data->AUTHORIZATION_MESSAGE->RESPONSE_TYPE_TEXT) 
+                    ? (string)$this->data->AUTHORIZATION_MESSAGE->RESPONSE_TYPE_TEXT 
+                    : null;
     }
 }

@@ -6,6 +6,7 @@ use DOMDocument;
 
 class PurchaseRequest extends AbstractRequest
 {
+    // Keep only the non-personal fields which should be outside AchAccount
     public function getRequestId()
     {
         return $this->getParameter('requestId');
@@ -16,41 +17,6 @@ class PurchaseRequest extends AbstractRequest
         return $this->setParameter('requestId', $value);
     }
     
-    public function getTransactionId()
-    {
-        return $this->getParameter('transactionId');
-    }
-    
-    public function setRoutingNumber($value)
-    {
-        return $this->setParameter('routingNumber', $value);
-    }
-    
-    public function getRoutingNumber()
-    {
-        return $this->getParameter('routingNumber');
-    }
-    
-    public function setAccountNumber($value)
-    {
-        return $this->setParameter('accountNumber', $value);
-    }
-    
-    public function getAccountNumber()
-    {
-        return $this->getParameter('accountNumber');
-    }
-    
-    public function setAccountType($value)
-    {
-        return $this->setParameter('accountType', $value);
-    }
-    
-    public function getAccountType()
-    {
-        return $this->getParameter('accountType') ?: 'Checking';
-    }
-    
     public function setIdentifier($value)
     {
         return $this->setParameter('identifier', $value);
@@ -59,36 +25,6 @@ class PurchaseRequest extends AbstractRequest
     public function getIdentifier()
     {
         return $this->getParameter('identifier') ?: 'R';
-    }
-    
-    public function setDlState($value)
-    {
-        return $this->setParameter('dlState', $value);
-    }
-    
-    public function getDlState()
-    {
-        return $this->getParameter('dlState');
-    }
-    
-    public function setDlNumber($value)
-    {
-        return $this->setParameter('dlNumber', $value);
-    }
-    
-    public function getDlNumber()
-    {
-        return $this->getParameter('dlNumber');
-    }
-    
-    public function setCourtesyCardId($value)
-    {
-        return $this->setParameter('courtesyCardId', $value);
-    }
-    
-    public function getCourtesyCardId()
-    {
-        return $this->getParameter('courtesyCardId');
     }
     
     /**
@@ -102,15 +38,22 @@ class PurchaseRequest extends AbstractRequest
             'requestId',
             'transactionId',
             'amount',
-            'routingNumber',
-            'accountNumber',
-            'firstName', 
-            'lastName',
-            'address1',
-            'city',
-            'state',
-            'postcode'
+            'achAccount'
         );
+        
+        $achAccount = $this->getAchAccount();
+        
+        // Validate ACH account fields
+        if (!$achAccount->getRoutingNumber() || !$achAccount->getAccountNumber()) {
+            throw new \InvalidArgumentException("The routingNumber and accountNumber parameters are required");
+        }
+        
+        // Validate customer information
+        if (!$achAccount->getFirstName() || !$achAccount->getLastName() || 
+            !$achAccount->getAddress1() || !$achAccount->getCity() || 
+            !$achAccount->getState() || !$achAccount->getPostcode()) {
+            throw new \InvalidArgumentException("Customer information (name, address) is required");
+        }
         
         return $this->buildDataPacket();
     }
@@ -143,35 +86,41 @@ class PurchaseRequest extends AbstractRequest
         $identifier = $dom->createElement('IDENTIFIER', $this->getIdentifier());
         $packet->appendChild($identifier);
         
+        $achAccount = $this->getAchAccount();
+        
         $account = $dom->createElement('ACCOUNT');
-        $account->appendChild($dom->createElement('ROUTING_NUMBER', $this->getRoutingNumber()));
-        $account->appendChild($dom->createElement('ACCOUNT_NUMBER', $this->getAccountNumber()));
-        $account->appendChild($dom->createElement('ACCOUNT_TYPE', $this->getAccountType()));
+        $account->appendChild($dom->createElement('ROUTING_NUMBER', $achAccount->getRoutingNumber()));
+        $account->appendChild($dom->createElement('ACCOUNT_NUMBER', $achAccount->getAccountNumber()));
+        $account->appendChild($dom->createElement('ACCOUNT_TYPE', $achAccount->getAccountType()));
         $packet->appendChild($account);
         
         $consumer = $dom->createElement('CONSUMER');
-        $consumer->appendChild($dom->createElement('FIRST_NAME', $this->getFirstName()));
-        $consumer->appendChild($dom->createElement('LAST_NAME', $this->getLastName()));
-        $consumer->appendChild($dom->createElement('ADDRESS1', $this->getAddress1()));
+        $consumer->appendChild($dom->createElement('FIRST_NAME', $achAccount->getFirstName()));
+        $consumer->appendChild($dom->createElement('LAST_NAME', $achAccount->getLastName()));
+        $consumer->appendChild($dom->createElement('ADDRESS1', $achAccount->getAddress1()));
         
-        if ($this->getAddress2()) {
-            $consumer->appendChild($dom->createElement('ADDRESS2', $this->getAddress2()));
+        if ($achAccount->getAddress2()) {
+            $consumer->appendChild($dom->createElement('ADDRESS2', $achAccount->getAddress2()));
         }
         
-        $consumer->appendChild($dom->createElement('CITY', $this->getCity()));
-        $consumer->appendChild($dom->createElement('STATE', $this->getState()));
-        $consumer->appendChild($dom->createElement('ZIP', $this->getPostcode()));
+        $consumer->appendChild($dom->createElement('CITY', $achAccount->getCity()));
+        $consumer->appendChild($dom->createElement('STATE', $achAccount->getState()));
+        $consumer->appendChild($dom->createElement('ZIP', $achAccount->getPostcode()));
         
-        if ($this->getDlState()) {
-            $consumer->appendChild($dom->createElement('DL_STATE', $this->getDlState()));
+        if ($achAccount->getPhone()) {
+            $consumer->appendChild($dom->createElement('PHONE_NUMBER', $achAccount->getPhone()));
         }
         
-        if ($this->getDlNumber()) {
-            $consumer->appendChild($dom->createElement('DL_NUMBER', $this->getDlNumber()));
+        if ($achAccount->getDlState()) {
+            $consumer->appendChild($dom->createElement('DL_STATE', $achAccount->getDlState()));
         }
         
-        if ($this->getCourtesyCardId()) {
-            $consumer->appendChild($dom->createElement('COURTESY_CARD_ID', $this->getCourtesyCardId()));
+        if ($achAccount->getDlNumber()) {
+            $consumer->appendChild($dom->createElement('DL_NUMBER', $achAccount->getDlNumber()));
+        }
+        
+        if ($achAccount->getCourtesyCardId()) {
+            $consumer->appendChild($dom->createElement('COURTESY_CARD_ID', $achAccount->getCourtesyCardId()));
         }
         
         $packet->appendChild($consumer);
@@ -185,11 +134,11 @@ class PurchaseRequest extends AbstractRequest
         
         return $dom->saveXML($authGateway);
     }
-    
+
     /**
      * Create the response object
      *
-     * @param mixed $data
+     * @param \SimpleXMLElement $data
      * @return PurchaseResponse
      */
     protected function createResponse($data)

@@ -6,11 +6,12 @@ use Omnipay\Common\Message\AbstractRequest as OmnipayAbstractRequest;
 use SoapClient;
 use SoapHeader;
 use DOMDocument;
+use Omnipay\Paya\AchAccount;
 
 abstract class AbstractRequest extends OmnipayAbstractRequest
 {
     protected $endpoint = 'http://tempuri.org/GETI.eMagnus.WebServices/AuthGateway';
-    
+
     /**
      * Get the WSDL URL
      *
@@ -32,7 +33,7 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         return $this->getParameter('productionWsdlUrl');
     }
-    
+
     /**
      * Set production WSDL URL
      *
@@ -43,7 +44,7 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         return $this->setParameter('productionWsdlUrl', $value);
     }
-    
+
     /**
      * Get sandbox WSDL URL
      *
@@ -53,7 +54,7 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         return $this->getParameter('sandboxWsdlUrl');
     }
-    
+
     /**
      * Set sandbox WSDL URL
      *
@@ -64,7 +65,7 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         return $this->setParameter('sandboxWsdlUrl', $value);
     }
-    
+
     /**
      * Get SOAP client
      *
@@ -79,24 +80,24 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
                 'exception' => true
             ]
         );
-        
+
         $headerData = [
             'UserName' => $this->getUsername(),
             'Password' => $this->getPassword(),
             'TerminalID' => $this->getTerminalId(),
         ];
-        
+
         $header = new SoapHeader(
-            $this->endpoint, 
-            'AuthGatewayHeader', 
+            $this->endpoint,
+            'AuthGatewayHeader',
             $headerData
         );
-        
+
         $soapClient->__setSoapHeaders($header);
-        
+
         return $soapClient;
     }
-    
+
     /**
      * Get username
      *
@@ -106,7 +107,7 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         return $this->getParameter('username');
     }
-    
+
     /**
      * Set username
      *
@@ -117,7 +118,7 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         return $this->setParameter('username', $value);
     }
-    
+
     /**
      * Get password
      *
@@ -127,7 +128,7 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         return $this->getParameter('password');
     }
-    
+
     /**
      * Set password
      *
@@ -138,7 +139,7 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         return $this->setParameter('password', $value);
     }
-    
+
     /**
      * Get terminal ID
      *
@@ -148,7 +149,7 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         return $this->getParameter('terminalId');
     }
-    
+
     /**
      * Set terminal ID
      *
@@ -159,7 +160,32 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         return $this->setParameter('terminalId', $value);
     }
-    
+
+    /**
+     * Get the ACH account
+     *
+     * @return AchAccount
+     */
+    public function getAchAccount()
+    {
+        return $this->getParameter('achAccount');
+    }
+
+    /**
+     * Set the ACH account
+     *
+     * @param AchAccount|array $value
+     * @return AbstractRequest
+     */
+    public function setAchAccount($value)
+    {
+        if ($value && !$value instanceof AchAccount) {
+            $value = new AchAccount($value);
+        }
+
+        return $this->setParameter('achAccount', $value);
+    }
+
     /**
      * Get the method and result property names based on test mode
      *
@@ -167,17 +193,17 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
      */
     protected function getMethodAndResultProperty()
     {
-        $method = $this->getTestMode() 
-            ? 'ProcessSingleCertificationCheckWithToken' 
+        $method = $this->getTestMode()
+            ? 'ProcessSingleCertificationCheckWithToken'
             : 'ProcessSingleCheckWithToken';
-        
-        $resultProperty = $this->getTestMode() 
-            ? 'ProcessSingleCertificationCheckWithTokenResult' 
+
+        $resultProperty = $this->getTestMode()
+            ? 'ProcessSingleCertificationCheckWithTokenResult'
             : 'ProcessSingleCheckWithTokenResult';
-        
+
         return [$method, $resultProperty];
     }
-    
+
     /**
      * Send data to the gateway
      *
@@ -188,17 +214,17 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         $soapClient = $this->getSoapClient();
         list($method, $resultProperty) = $this->getMethodAndResultProperty();
-        
+
         $body = [
             'DataPacket' => $data
         ];
-        
+
         $result = $soapClient->__soapCall($method, [$body]);
         $xmlResponse = simplexml_load_string($result->{$resultProperty});
-        
+
         return $this->createResponse($xmlResponse);
     }
-    
+
     /**
      * Create the appropriate response object
      *
