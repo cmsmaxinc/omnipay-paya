@@ -48,11 +48,11 @@ class PurchaseRequest extends AbstractRequest
             throw new \InvalidArgumentException("The routingNumber and accountNumber parameters are required");
         }
         
-        // Validate customer information
+        // Validate customer information with new parameter names
         if (!$achAccount->getFirstName() || !$achAccount->getLastName() || 
-            !$achAccount->getAddress1() || !$achAccount->getCity() || 
-            !$achAccount->getState() || !$achAccount->getPostcode()) {
-            throw new \InvalidArgumentException("Customer information (name, address) is required");
+            !$achAccount->getBillingAddress1() || !$achAccount->getBillingCity() || 
+            !$achAccount->getBillingState() || !$achAccount->getBillingPostcode()) {
+            throw new \InvalidArgumentException("Customer information (name, billing address) is required");
         }
         
         return $this->buildDataPacket();
@@ -97,15 +97,15 @@ class PurchaseRequest extends AbstractRequest
         $consumer = $dom->createElement('CONSUMER');
         $consumer->appendChild($dom->createElement('FIRST_NAME', $achAccount->getFirstName()));
         $consumer->appendChild($dom->createElement('LAST_NAME', $achAccount->getLastName()));
-        $consumer->appendChild($dom->createElement('ADDRESS1', $achAccount->getAddress1()));
+        $consumer->appendChild($dom->createElement('ADDRESS1', $achAccount->getBillingAddress1()));
         
-        if ($achAccount->getAddress2()) {
-            $consumer->appendChild($dom->createElement('ADDRESS2', $achAccount->getAddress2()));
+        if ($achAccount->getBillingAddress2()) {
+            $consumer->appendChild($dom->createElement('ADDRESS2', $achAccount->getBillingAddress2()));
         }
         
-        $consumer->appendChild($dom->createElement('CITY', $achAccount->getCity()));
-        $consumer->appendChild($dom->createElement('STATE', $achAccount->getState()));
-        $consumer->appendChild($dom->createElement('ZIP', $achAccount->getPostcode()));
+        $consumer->appendChild($dom->createElement('CITY', $achAccount->getBillingCity()));
+        $consumer->appendChild($dom->createElement('STATE', $achAccount->getBillingState()));
+        $consumer->appendChild($dom->createElement('ZIP', $achAccount->getBillingPostcode()));
         
         if ($achAccount->getPhone()) {
             $consumer->appendChild($dom->createElement('PHONE_NUMBER', $achAccount->getPhone()));

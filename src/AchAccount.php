@@ -182,7 +182,7 @@ class AchAccount
         return $this->setParameter('token', $value);
     }
 
-    // Personal & Billing Details
+    // Personal Details
 
     /**
      * Get the first name
@@ -226,14 +226,16 @@ class AchAccount
         return $this->setParameter('lastName', $value);
     }
 
+    // Billing Details with updated parameter names
+
     /**
      * Get the billing address line 1
      *
      * @return string
      */
-    public function getAddress1()
+    public function getBillingAddress1()
     {
-        return $this->getParameter('address1');
+        return $this->getParameter('billingAddress1');
     }
 
     /**
@@ -242,9 +244,9 @@ class AchAccount
      * @param string $value
      * @return AchAccount
      */
-    public function setAddress1($value)
+    public function setBillingAddress1($value)
     {
-        return $this->setParameter('address1', $value);
+        return $this->setParameter('billingAddress1', $value);
     }
 
     /**
@@ -252,9 +254,9 @@ class AchAccount
      *
      * @return string
      */
-    public function getAddress2()
+    public function getBillingAddress2()
     {
-        return $this->getParameter('address2');
+        return $this->getParameter('billingAddress2');
     }
 
     /**
@@ -263,9 +265,9 @@ class AchAccount
      * @param string $value
      * @return AchAccount
      */
-    public function setAddress2($value)
+    public function setBillingAddress2($value)
     {
-        return $this->setParameter('address2', $value);
+        return $this->setParameter('billingAddress2', $value);
     }
 
     /**
@@ -273,9 +275,9 @@ class AchAccount
      *
      * @return string
      */
-    public function getCity()
+    public function getBillingCity()
     {
-        return $this->getParameter('city');
+        return $this->getParameter('billingCity');
     }
 
     /**
@@ -284,9 +286,9 @@ class AchAccount
      * @param string $value
      * @return AchAccount
      */
-    public function setCity($value)
+    public function setBillingCity($value)
     {
-        return $this->setParameter('city', $value);
+        return $this->setParameter('billingCity', $value);
     }
 
     /**
@@ -294,9 +296,9 @@ class AchAccount
      *
      * @return string
      */
-    public function getState()
+    public function getBillingState()
     {
-        return $this->getParameter('state');
+        return $this->getParameter('billingState');
     }
 
     /**
@@ -305,9 +307,9 @@ class AchAccount
      * @param string $value
      * @return AchAccount
      */
-    public function setState($value)
+    public function setBillingState($value)
     {
-        return $this->setParameter('state', $value);
+        return $this->setParameter('billingState', $value);
     }
 
     /**
@@ -315,9 +317,9 @@ class AchAccount
      *
      * @return string
      */
-    public function getPostcode()
+    public function getBillingPostcode()
     {
-        return $this->getParameter('postcode');
+        return $this->getParameter('billingPostcode');
     }
 
     /**
@@ -326,9 +328,9 @@ class AchAccount
      * @param string $value
      * @return AchAccount
      */
-    public function setPostcode($value)
+    public function setBillingPostcode($value)
     {
-        return $this->setParameter('postcode', $value);
+        return $this->setParameter('billingPostcode', $value);
     }
 
     /**
