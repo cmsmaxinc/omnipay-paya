@@ -99,4 +99,15 @@ class Gateway extends AbstractGateway
     {
         return $this->createRequest('\Omnipay\Paya\Message\RefundRequest', $parameters);
     }
+    
+    /**
+     * Create an ACH void request
+     *
+     * @param array $parameters
+     * @return \Omnipay\Paya\Message\VoidRequest
+     */
+    public function void(array $parameters = [])
+    {
+        return $this->createRequest('\Omnipay\Paya\Message\VoidRequest', $parameters);
+    }
 }
