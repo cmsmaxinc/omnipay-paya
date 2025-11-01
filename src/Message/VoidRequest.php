@@ -35,7 +35,7 @@ class VoidRequest extends AbstractRequest
     {
         $this->validate(
             'requestId',
-            'transactionId',
+            'transactionReference',
             'achAccount'
         );
         
@@ -72,7 +72,7 @@ class VoidRequest extends AbstractRequest
         $authGateway->setAttribute('REQUEST_ID', $this->getRequestId());
         
         $transaction = $dom->createElement('TRANSACTION');
-        $transactionId = $dom->createElement('TRANSACTION_ID', $this->getTransactionId());
+        $transactionId = $dom->createElement('TRANSACTION_ID', $this->getTransactionReference());
         $transaction->appendChild($transactionId);
         
         $merchant = $dom->createElement('MERCHANT');
