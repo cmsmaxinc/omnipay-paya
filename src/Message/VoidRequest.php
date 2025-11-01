@@ -35,23 +35,8 @@ class VoidRequest extends AbstractRequest
     {
         $this->validate(
             'requestId',
-            'transactionReference',
-            'achAccount'
+            'transactionReference'
         );
-        
-        $achAccount = $this->getAchAccount();
-        
-        // Validate token for void transactions
-        if (!$achAccount->getToken()) {
-            throw new \InvalidArgumentException("The token parameter is required for void transactions");
-        }
-        
-        // Validate minimal customer information required for void
-        if (!$achAccount->getFirstName() || !$achAccount->getLastName() || 
-            !$achAccount->getBillingAddress1() || !$achAccount->getBillingCity() || 
-            !$achAccount->getBillingState() || !$achAccount->getBillingPostcode()) {
-            throw new \InvalidArgumentException("Customer information (name, billing address) is required");
-        }
         
         return $this->buildDataPacket();
     }
@@ -83,34 +68,6 @@ class VoidRequest extends AbstractRequest
         $packet = $dom->createElement('PACKET');
         $identifier = $dom->createElement('IDENTIFIER', $this->getIdentifier());
         $packet->appendChild($identifier);
-        
-        $achAccount = $this->getAchAccount();
-        
-        $account = $dom->createElement('ACCOUNT');
-        $account->appendChild($dom->createElement('TOKEN', $achAccount->getToken()));
-        $packet->appendChild($account);
-        
-        $consumer = $dom->createElement('CONSUMER');
-        $consumer->appendChild($dom->createElement('FIRST_NAME', $achAccount->getFirstName()));
-        $consumer->appendChild($dom->createElement('LAST_NAME', $achAccount->getLastName()));
-        $consumer->appendChild($dom->createElement('ADDRESS1', $achAccount->getBillingAddress1()));
-        
-        if ($achAccount->getBillingAddress2()) {
-            $consumer->appendChild($dom->createElement('ADDRESS2', $achAccount->getBillingAddress2()));
-        }
-        
-        $consumer->appendChild($dom->createElement('CITY', $achAccount->getBillingCity()));
-        $consumer->appendChild($dom->createElement('STATE', $achAccount->getBillingState()));
-        $consumer->appendChild($dom->createElement('ZIP', $achAccount->getBillingPostcode()));
-        $packet->appendChild($consumer);
-        
-        // For void transactions, amount may not be required or should be the original amount
-        // Include it if provided
-        if ($this->getAmount()) {
-            $check = $dom->createElement('CHECK');
-            $check->appendChild($dom->createElement('CHECK_AMOUNT', $this->getAmount()));
-            $packet->appendChild($check);
-        }
         
         $transaction->appendChild($packet);
         $authGateway->appendChild($transaction);
